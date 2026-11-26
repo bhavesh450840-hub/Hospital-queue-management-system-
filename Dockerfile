@@ -17,8 +17,16 @@ ENV NODE_ENV=production \
     PORT=3000 \
     DATA_DIR=/app/database
 
+# Explicit copies only: never ship the local node_modules, database or .env.
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY package.json package-lock.json ./
+COPY server.js ./
+COPY src ./src
+COPY js ./js
+COPY css ./css
+COPY index.html login.html dashboard.html display.html ./
+COPY README.md API.md TESTING.md ./
+
 RUN mkdir -p /app/database && chown -R app:app /app
 
 USER app
