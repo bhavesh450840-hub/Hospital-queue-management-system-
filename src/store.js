@@ -69,6 +69,20 @@ function countStaff() {
   return db.get('SELECT COUNT(*) AS c FROM staff').c;
 }
 
+/** Usernames and roles only — never password hashes. */
+function listStaff() {
+  return db.all('SELECT id, username, display_name, role, created_at FROM staff ORDER BY id ASC');
+}
+
+/**
+ * Replace a stored password hash. Used only when the configured administrator
+ * password changes; a matching password is never rewritten.
+ */
+function updateStaffPassword(id, passwordHash) {
+  db.run('UPDATE staff SET password_hash = ? WHERE id = ?', [passwordHash, Number(id)]);
+  return findStaffById(id);
+}
+
 /* --------------------------------------------------------------- patients */
 
 function createPatient({ fullName, age, gender, phone }) {
