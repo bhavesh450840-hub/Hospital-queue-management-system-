@@ -318,6 +318,7 @@ async function main() {
   });
 
   await step('Token status can be completed', async () => {
+    const before = await json('/api/queue?department=General');
     const { res, body } = await json(`/api/queue/${firstToken.id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status: 'completed' }),
@@ -326,7 +327,7 @@ async function main() {
     assert.equal(body.token.status, 'completed');
 
     const queue = await json('/api/queue?department=General');
-    assert.equal(queue.body.stats.completed, 1);
+    assert.equal(queue.body.stats.completed, before.body.stats.completed + 1);
   });
 
   await step('Invalid status values are rejected', async () => {
