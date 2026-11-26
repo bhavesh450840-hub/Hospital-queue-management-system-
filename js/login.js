@@ -25,6 +25,26 @@
     });
   }
 
+  var hint = document.getElementById('loginHint');
+
+  // Sign-in help: shows which account exists on this deployment (never a hash).
+  fetch('/api/auth/setup', { headers: { Accept: 'application/json' } })
+    .then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (data) {
+      if (!hint || !data || !data.ok) return;
+      if (data.demoMode && data.demoUsername) {
+        hint.textContent =
+          'Demo mode — sign in as "' + data.demoUsername + '" with password "' + (data.demoPassword || '') +
+          '". Set ADMIN_USERNAME and ADMIN_PASSWORD for a real deployment.';
+      } else if (data.primaryUsername) {
+        hint.textContent = 'Use the staff account configured by your administrator: "' + data.primaryUsername + '".';
+      } else {
+        hint.textContent = 'No staff account exists yet. Set ADMIN_USERNAME and ADMIN_PASSWORD, then restart the server.';
+      }
+      hint.hidden = false;
+    })
+    .catch(function () { /* ignore */ });
+
   // Already signed in? Go straight to the dashboard.
   fetch('/api/auth/me', { headers: { Accept: 'application/json' } })
     .then(function (res) { return res.ok ? res.json() : null; })

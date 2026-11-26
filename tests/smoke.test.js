@@ -197,6 +197,18 @@ async function main() {
     assert.equal(me.res.status, 401);
   });
 
+  await step('Sign-in help reports the admin username without leaking secrets', async () => {
+    const { res, body } = await json('/api/auth/setup');
+    assert.equal(res.status, 200);
+    assert.equal(body.envAdminConfigured, true);
+    assert.equal(body.primaryUsername, ADMIN.username);
+    assert.equal(body.demoMode, false);
+    assert.equal(body.demoPassword, null);
+    const serialized = JSON.stringify(body);
+    assert.ok(!serialized.includes('$2'), 'password hash leaked');
+    assert.ok(!serialized.includes(ADMIN.password), 'admin password leaked');
+  });
+
   await step('Wrong password is rejected', async () => {
     const { res, body } = await json('/api/auth/login', {
       method: 'POST',

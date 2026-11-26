@@ -151,28 +151,53 @@ const registerLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 40, keyPrefix
 
 /* -------------------------------------------------------------- startup */
 
-async function seedStaff() {
+const DEMO_USERNAME = 'staff';
+const DEMO_PASSWORD = 'staff123';
+
+/**
+ * Idempotent staff bootstrap. Runs on every boot and is safe to repeat:
+ *
+ *  - ADMIN_USERNAME + ADMIN_PASSWORD define the administrator account.
+ *  - The account is created when it does not exist yet, so credentials added
+ *    after the first boot take effect on the next start.
+ *  - An existing password is only rewritten when ADMIN_PASSWORD no longer
+ *    matches the stored hash, so a normal restart never resets a password.
+ *  - With no environment credentials and an empty staff table, a demo login is
+ *    created so a fresh deployment is still reachable.
+ */
+async function ensureStaffAccounts() {
   const adminUsername = (process.env.ADMIN_USERNAME || '').trim();
   const adminPassword = (process.env.ADMIN_PASSWORD || '').trim();
+  const envConfigured = Boolean(adminUsername && adminPassword);
 
-  if (adminUsername && adminPassword) {
+  if (envConfigured) {
     const existing = store.findStaffByUsername(adminUsername);
     if (!existing) {
       const passwordHash = await bcrypt.hash(adminPassword, BCRYPT_ROUNDS);
       store.createStaff({ username: adminUsername, passwordHash, displayName: adminUsername, role: 'admin' });
-      console.log(`[auth] created admin account "${adminUsername}" from environment variables`);
+      console.log(`[auth] created admin account "${adminUsername}" from ADMIN_USERNAME/ADMIN_PASSWORD`);
+    } else if (!(await bcrypt.compare(adminPassword, existing.password_hash))) {
+      store.updateStaffPassword(existing.id, await bcrypt.hash(adminPassword, BCRYPT_ROUNDS));
+      console.warn(`[auth] ADMIN_PASSWORD changed — updated the stored password for "${adminUsername}"`);
+    } else {
+      console.log(`[auth] admin account "${adminUsername}" already matches the configured password`);
     }
-    return;
+  } else if (adminUsername || adminPassword) {
+    console.warn('[auth] ADMIN_USERNAME and ADMIN_PASSWORD must both be set — ignoring the partial configuration');
   }
 
-  if (store.countStaff() === 0) {
-    const passwordHash = await bcrypt.hash('staff123', BCRYPT_ROUNDS);
-    store.createStaff({ username: 'staff', passwordHash, displayName: 'Demo Staff', role: 'staff' });
+  if (!envConfigured && store.countStaff() === 0) {
+    const passwordHash = await bcrypt.hash(DEMO_PASSWORD, BCRYPT_ROUNDS);
+    store.createStaff({ username: DEMO_USERNAME, passwordHash, displayName: 'Demo Staff', role: 'staff' });
     console.warn(
-      '[auth] no ADMIN_USERNAME/ADMIN_PASSWORD set — created demo login "staff" / "staff123". ' +
+      `[auth] no ADMIN_USERNAME/ADMIN_PASSWORD set — created demo login "${DEMO_USERNAME}" / "${DEMO_PASSWORD}". ` +
         'Set ADMIN_USERNAME and ADMIN_PASSWORD environment variables for a real deployment.'
     );
   }
+
+  const usernames = store.listStaff().map((row) => row.username);
+  console.log('[auth] staff accounts in database:', usernames.length ? usernames.join(', ') : 'none');
+  return { envConfigured, usernames };
 }
 
 /* ---------------------------------------------------------------- pages */
@@ -227,7 +252,10 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
   const hash = account ? account.password_hash : '$2a$12$invalidsaltinvalidsaltinvalidsaltinvalidsaltinvalidsa';
   const valid = await bcrypt.compare(password, hash);
 
-  if (!account || !valid) return fail(res, 401, 'Invalid username or password.');
+  if (!account || !valid) {
+    console.warn('[auth] failed sign-in for username "%s" from %s', username, req.ip);
+    return fail(res, 401, 'Invalid username or password.');
+  }
 
   req.session.regenerate((err) => {
     if (err) return fail(res, 500, 'Could not start a session. Please try again.');
@@ -255,6 +283,35 @@ app.post('/api/auth/logout', (req, res) => {
 app.get('/api/auth/me', (req, res) => {
   if (!req.session || !req.session.staff) return fail(res, 401, 'Not signed in.');
   return res.json({ ok: true, user: req.session.staff });
+});
+
+/**
+ * Public sign-in help: which username to use and whether this deployment is
+ * still running the demo account. Never exposes password hashes.
+ */
+app.get('/api/auth/setup', (req, res) => {
+  const envUsername = (process.env.ADMIN_USERNAME || '').trim();
+  const envConfigured = Boolean(envUsername && (process.env.ADMIN_PASSWORD || '').trim());
+  const staff = store.listStaff();
+  const demoAccount = staff.some((row) => row.username === DEMO_USERNAME);
+  const demoMode = !envConfigured && demoAccount;
+  const primaryUsername = envConfigured
+    ? envUsername
+    : demoAccount
+      ? DEMO_USERNAME
+      : staff.length
+        ? staff[0].username
+        : null;
+
+  return res.json({
+    ok: true,
+    staffCount: staff.length,
+    envAdminConfigured: envConfigured,
+    demoMode,
+    demoUsername: demoMode ? DEMO_USERNAME : null,
+    demoPassword: demoMode ? DEMO_PASSWORD : null,
+    primaryUsername,
+  });
 });
 
 /* ---- patients ---- */
@@ -430,7 +487,7 @@ io.on('connection', (socket) => {
 
 /* ---------------------------------------------------------------- start */
 
-seedStaff()
+ensureStaffAccounts()
   .then(() => {
     server.listen(PORT, HOST, () => {
       console.log(`CareQueue listening on http://${HOST}:${PORT}`);
