@@ -339,6 +339,14 @@ app.get('/api/queue', (req, res) => {
   });
 });
 
+/** Staff-only view of a department queue, including patient details. */
+app.get('/api/queue/detail', requireStaff, (req, res) => {
+  const department = asText(req.query.department, 30);
+  if (!store.DEPARTMENT_NAMES.includes(department)) return fail(res, 400, 'Please select a valid department.');
+  const queue = store.departmentQueue(department, { includePatient: true });
+  return res.json({ ok: true, ...queue });
+});
+
 app.post('/api/queue/next', requireStaff, (req, res) => {
   const department = asText(req.body && req.body.department, 30);
   if (!store.DEPARTMENT_NAMES.includes(department)) return fail(res, 400, 'Please select a valid department.');

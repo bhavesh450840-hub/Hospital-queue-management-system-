@@ -202,7 +202,8 @@ function createToken({ patientId, department, priority = 'normal', visitReason =
 }
 
 /** Public queue view: token numbers only, never patient identity. */
-function departmentQueue(department) {
+function departmentQueue(department, options = {}) {
+  const includePatient = Boolean(options.includePatient);
   const date = todayKey();
   const waitingRows = db.all(
     `${TOKEN_SELECT} WHERE t.department = ? AND t.token_date = ? AND t.status = 'waiting' ${QUEUE_ORDER_SQL}`,
@@ -214,8 +215,8 @@ function departmentQueue(department) {
     [department, date]
   );
 
-  const waiting = waitingRows.map((row) => mapToken(row, { includeReason: true }));
-  const serving = servingRows.map((row) => mapToken(row, { includeReason: true }));
+  const waiting = waitingRows.map((row) => mapToken(row, { includeReason: true, includePatient }));
+  const serving = servingRows.map((row) => mapToken(row, { includeReason: true, includePatient }));
 
   const counts = db.get(
     `SELECT
