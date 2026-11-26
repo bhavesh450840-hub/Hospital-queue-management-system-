@@ -13,8 +13,8 @@
     "test": "node tests/smoke.test.js"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "express": "^4.21.2",
+    "bcryptjs": "^3.0.3",
+    "express": "^5.3.0",
     "express-session": "^1.18.1",
     "node-sqlite3-wasm": "^0.8.5",
     "socket.io": "^4.8.1"
