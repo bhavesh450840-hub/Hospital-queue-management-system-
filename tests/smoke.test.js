@@ -184,6 +184,18 @@ async function main() {
     const serialized = JSON.stringify(body);
     assert.ok(!serialized.includes('Alice'), 'patient name leaked to public queue');
     assert.ok(!serialized.includes('9876543210'), 'phone leaked to public queue');
+    // The anonymous view is a whitelist: no visit reason, no clinical detail.
+    assert.ok(!('visitReason' in body.waiting[0]), 'visit reason leaked to public queue');
+    assert.ok(!serialized.includes('visitReason'), 'visit reason leaked to public queue');
+    assert.ok(!('patient' in body.waiting[0]), 'patient object leaked to public queue');
+  });
+
+  await step('Department summary exposes counts only', async () => {
+    const { res, body } = await json('/api/queue');
+    assert.equal(res.status, 200);
+    const serialized = JSON.stringify(body);
+    assert.ok(!serialized.includes('Alice'), 'name leaked via department summary');
+    assert.ok(!serialized.includes('visitReason'), 'reason leaked via department summary');
   });
 
   await step('Protected endpoints reject anonymous callers', async () => {
