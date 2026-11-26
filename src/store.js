@@ -324,6 +324,7 @@ module.exports = {
   searchPatients,
   patientHistory,
   createToken,
+  findTokenById,
   departmentQueue,
   departmentSummary,
   nextWaitingToken,
