@@ -1,1 +1,31 @@
 :root{--navy:#10243a;--blue:#1769aa;--ink:#172b3e;--muted:#6b7c8e;--line:#dce6ee;--bg:#f4f8fb;--green:#16845b;--red:#c23b3b;--amber:#a66a00}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif}.topbar{height:68px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(5vw,18px)}.brand{font-size:21px;font-weight:800;color:var(--navy);text-decoration:none}.topbar nav{display:flex;gap:20px;align-items:center}.topbar nav a,.nav-button{color:#42576b;text-decoration:none;font-weight:650;background:none;border:0;font:inherit;cursor:pointer}.container{max-width:1100px;margin:34px auto;padding:0 20px}.hero{background:linear-gradient(115deg,#102b47,#1769aa);border-radius:20px;color:white;padding:34px 40px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.hero h1{font-size:clamp(32px,5vw,52px);line-height:1.08;margin:8px 0}.hero h1 span{color:#9ddcff}.hero-mark{font-size:90px;color:#9ddcff}.eyebrow{font-size:11px;letter-spacing:2px;font-weight:800;color:#3d8ac1}.hero .eyebrow{color:#a9ddff}.grid{display:grid;gap:20px}.two{grid-template-columns:1.1fr .9fr}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 8px 24px #183c590d}.panel h2{margin:0 0 8px}.muted{color:var(--muted)}form{display:grid;gap:10px;margin-top:16px}label{display:grid;gap:7px;font-size:13px;font-weight:700;color:#43576a;margin:10px 0}input,select{width:100%;padding:11px 12px;border:1px solid #cbd8e2;border-radius:9px;background:white;color:var(--ink);font:inherit;font-weight:400}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{border:0;border-radius:9px;padding:12px 16px;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#e9f3fa;color:var(--blue)}.message{min-height:18px;font-size:13px;color:var(--red)}.message.success{color:var(--green)}.token-card{margin-top:16px;padding:18px;border:2px dashed #80b5d7;border-radius:13px;text-align:center;background:#f1f9ff}.token-card strong{display:block;font-size:42px;color:var(--blue)}.hidden{display:none}.panel-heading{display:flex;justify-content:space-between;align-items:center}.live-dot{font-size:11px;color:var(--green);font-weight:800;background:#e6f6ef;padding:7px 10px;border-radius:20px}.queue-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.queue-stats div{background:#f3f8fc;border-radius:11px;padding:14px}.queue-stats strong{display:block;font-size:26px;color:var(--blue)}.queue-stats span{font-size:12px;color:var(--muted)}.queue-list{display:grid;gap:8px;margin:12px 0}.queue-item{border:1px solid var(--line);border-radius:10px;padding:11px;display:flex;justify-content:space-between;gap:10px;align-items:center}.queue-item strong{display:block}.queue-item small{color:var(--muted)}.pill{font-size:11px;font-weight:800;border-radius:18px;padding:5px 8px;background:#eaf1f7;color:#53697d}.pill.emergency{background:#fde9e9;color:var(--red)}.pill.urgent{background:#fff3d8;color:var(--amber)}.pill.normal{background:#e7f4ff;color:var(--blue)}.text-link{color:var(--blue);font-weight:700;text-decoration:none}.narrow{max-width:450px;margin:65px auto;padding:0 18px}.action-end{display:flex;align-items:end;padding-bottom:10px}.display-body{background:#0c1e31;color:white;min-height:100vh}.display-body .topbar{background:#10243a;border-color:#274057}.display-body .brand,.display-body .topbar nav a{color:white}.display-body .eyebrow{color:#83caff}.display-body h1{font-size:clamp(36px,6vw,64px)}.display-filter{max-width:270px;color:#dcecf8}.now-serving{text-align:center;background:#143653;border:1px solid #2d5b7e;border-radius:18px;padding:30px;margin:20px 0}.now-serving span{color:#91d5ff;font-size:12px;letter-spacing:3px;font-weight:800}.now-serving strong{display:block;font-size:clamp(65px,12vw,115px);color:white}.now-serving p{color:#c5dced}.display-body .panel{background:#132b42;border-color:#2a4962;color:white}.display-body .queue-item{border-color:#31516c}footer{text-align:center;padding:24px;color:#8091a1;font-size:12px}@media(max-width:740px){.two{grid-template-columns:1fr}.hero{padding:25px}.hero-mark{font-size:55px}.topbar{padding:0 12px}.topbar nav{gap:9px;font-size:12px}.form-row{grid-template-columns:1fr}.container{margin:20px auto}}@media print{.topbar,footer,form,.hero{display:none!important}body{background:white}.token-card{display:block!important}}
+/* --- additions for the connected frontend --- */
+.message.error{color:var(--red)}
+.message.success{color:var(--green)}
+.empty{margin:14px 0;padding:16px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px;text-align:center;background:#fafcfe}
+.queue-main{display:grid;gap:3px;min-width:0}
+.queue-main small{overflow-wrap:anywhere}
+.queue-meta{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pill.status-waiting{background:#eef4fa;color:#4b6379}
+.pill.status-serving{background:#e6f6ef;color:var(--green)}
+.pill.status-completed{background:#eaf1f7;color:#5b7185}
+.pill.status-cancelled{background:#fde9e9;color:var(--red)}
+.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.btn.small{padding:7px 11px;font-size:12px;border-radius:8px}
+.btn.danger{background:#fdeaea;color:var(--red)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.priority-select{width:auto;min-width:104px;padding:6px 8px;font-size:12px;font-weight:700}
+.queue-item{align-items:flex-start;flex-wrap:wrap}
+.queue-item>div:first-child{flex:1 1 190px}
+.nav-button:hover,.topbar nav a:hover{color:var(--blue)}
+.display-body .empty{background:#102b42;border-color:#31516c;color:#a9c2d6}
+.display-body .pill.status-waiting,.display-body .pill{background:#1d3d59;color:#cfe6f7}
+.display-body .priority-select{background:#1d3d59;color:white;border-color:#31516c}
+@media(max-width:740px){
+  .queue-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .queue-stats strong{font-size:22px}
+  .row-actions{width:100%;justify-content:flex-start}
+  .queue-meta{justify-content:flex-start}
+  .display-body h1{font-size:clamp(28px,9vw,44px)}
+  .now-serving strong{font-size:clamp(56px,20vw,96px)}
+}
