@@ -333,6 +333,8 @@ module.exports = {
   findStaffById,
   createStaff,
   countStaff,
+  listStaff,
+  updateStaffPassword,
   createPatient,
   findPatientById,
   searchPatients,
